@@ -2,24 +2,54 @@ import React, { Component } from "react";
 import axios from "axios";
 
 enum LoadState {
-    WAITING,
-    LOADING,
-    FINISHED
+  WAITING,
+  LOADING,
+  FINISHED
 }
 
-type ResumeState = {
+enum InputState {
+  RESUME,
+  DESCRIPTION,
+  REVIEW,
+  PROCESSED
+}
+
+function advance_input_state(origState: InputState): InputState {
+  switch (origState) {
+    case InputState.RESUME:
+      return InputState.DESCRIPTION;
+    case InputState.DESCRIPTION:
+      // TODO: add a mechanism to add multiple job desciptions
+      return InputState.REVIEW;
+    case InputState.REVIEW:
+      return InputState.PROCESSED 
+    case InputState.PROCESSED:
+      // TODO: this should error
+      return InputState.PROCESSED
+  }
+}
+
+type CardState = {
   docText: string;
   loadState: LoadState;
-  returnedData: string | null;
+  inputState: InputState;
+  docData: DocData | undefined;
 };
 
-class ResumeInputCard extends Component<{}, ResumeState> {
+type DocData = {
+  origText?: string | undefined;
+  descText?: string | undefined;
+  processedText?: string | undefined;
+};
+
+class ResumeInputCard extends Component<{}, CardState> {
   constructor(props: {}) {
     super(props);
     this.state = {
       docText: "",
       loadState: LoadState.WAITING,
-      returnedData: null,
+      inputState: InputState.RESUME,
+      docData: undefined
     };
   }
 
@@ -27,35 +57,63 @@ class ResumeInputCard extends Component<{}, ResumeState> {
     this.setState({ docText: e.target.value });
   };
 
+  loadData = (text: string) => {
+    let tmp: DocData | undefined;
+    switch (this.state.inputState) {
+      case InputState.RESUME:
+        tmp = this.state.docData;
+        this.setState({ docData: { ...tmp, origText: text } });
+        break;
+      case InputState.DESCRIPTION:
+        tmp = this.state.docData;
+        this.setState({ docData: { ...tmp, descText: text } });
+        break;
+      case InputState.REVIEW:
+        tmp = this.state.docData;
+        this.setState({ docData: { ...tmp, processedText: text } });
+        break;
+    }
+  }
+
   handleButtonClick = async () => {
     this.setState({ loadState: LoadState.LOADING });
 
     try {
-      const response = await axios.post(
-        "<http://your-target-url-here.com>",
-        {
-          data: this.state.docText,
-        }
-      );
+      if (this.state.inputState === InputState.REVIEW) {
+        const response = await axios.post(
+          "<http://your-target-url-here.com>",
+          {
+            resume: this.state.docData?.origText,
+            desc: this.state.docData?.descText,
+          }
+        );
 
-      this.setState({
-        returnedData: JSON.stringify(response.data),
-      });
+        this.loadData(JSON.stringify(response.data));
+      }
+      else {
+        this.loadData(this.state.docText);
+      }
     } catch (error) {
-      this.setState({
-        returnedData: "An error occurred.",
-      });
+      this.loadData("An error occurred.")
     } finally {
-      this.setState({ loadState: LoadState.FINISHED });
+      // update states
+      const next_input_state = advance_input_state(this.state.inputState);
+      const finished = next_input_state === InputState.REVIEW || next_input_state === InputState.PROCESSED;
+      const next_load_state = finished ? LoadState.FINISHED : LoadState.WAITING;
+      this.setState({
+        docText: '',
+        loadState: next_load_state,
+        inputState: next_input_state
+      });
     }
   };
 
   render() {
-    const { docText: inputText, loadState, returnedData } = this.state;
+    const { docText: inputText, loadState, docData, inputState } = this.state;
 
     return (
       <div>
-        {loadState === LoadState.WAITING ? (
+        {loadState === LoadState.WAITING && inputState === InputState.RESUME ? (
           <div>
             <h1>Your Resume:</h1>
 
@@ -64,10 +122,21 @@ class ResumeInputCard extends Component<{}, ResumeState> {
               onChange={this.handleInputChange}
               placeholder="Enter some text here"
             />
+          </div>
+        ) : (
+          <></> 
+        )}
+        
+        {loadState === LoadState.WAITING && inputState === InputState.DESCRIPTION ? (
+          <div>
+            <h1>Job Description:</h1>
 
-            <button onClick={this.handleButtonClick}>
-              Update resume
-            </button>
+            <textarea
+              value={inputText}
+              onChange={this.handleInputChange}
+              placeholder="Enter some text here"
+            />
+
           </div>
         ) : (
           <></> 
@@ -80,10 +149,21 @@ class ResumeInputCard extends Component<{}, ResumeState> {
         {loadState === LoadState.FINISHED ? (
           <div>
             <h2>Returned Data:</h2>
-            <pre>{returnedData}</pre>
+            <pre>input state: {inputState}</pre>
+            <pre>orig: {docData?.origText}</pre>
+            <pre>desc: {docData?.descText}</pre>
+            <pre>processed: {docData?.processedText}</pre>
           </div>
         ) : (
           <></>
+        )}
+
+        {inputState === InputState.PROCESSED ? (
+          <></>
+        ) : (
+          <button onClick={this.handleButtonClick}>
+            Submit
+          </button>
         )}
       </div>
     );
