@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { HtmlRenderer, Parser } from "commonmark";
 import axios from "axios";
 
 enum LoadState {
@@ -33,13 +34,13 @@ type CardState = {
   docText: string;
   loadState: LoadState;
   inputState: InputState;
-  docData: DocData | undefined;
+  docData: DocData;
 };
 
 type DocData = {
-  origText?: string | undefined;
-  descText?: string | undefined;
-  processedText?: string | undefined;
+  origText: string;
+  descText: string;
+  processedText: string;
 };
 
 class ResumeInputCard extends Component<{}, CardState> {
@@ -49,7 +50,7 @@ class ResumeInputCard extends Component<{}, CardState> {
       docText: "",
       loadState: LoadState.WAITING,
       inputState: InputState.RESUME,
-      docData: undefined
+      docData: {origText: '', descText: '', processedText: ''}
     };
   }
 
@@ -58,21 +59,22 @@ class ResumeInputCard extends Component<{}, CardState> {
   };
 
   loadData = (text: string) => {
-    let tmp: DocData | undefined;
-    switch (this.state.inputState) {
-      case InputState.RESUME:
-        tmp = this.state.docData;
-        this.setState({ docData: { ...tmp, origText: text } });
-        break;
-      case InputState.DESCRIPTION:
-        tmp = this.state.docData;
-        this.setState({ docData: { ...tmp, descText: text } });
-        break;
-      case InputState.REVIEW:
-        tmp = this.state.docData;
-        this.setState({ docData: { ...tmp, processedText: text } });
-        break;
-    }
+    this.setState(prevState => {
+      let tmp: DocData;
+      switch (prevState.inputState) {
+        case InputState.RESUME:
+          tmp = prevState.docData;
+          return { docData: { ...tmp, origText: text } };
+        case InputState.DESCRIPTION:
+          tmp = prevState.docData;
+          return { docData: { ...tmp, descText: text } };
+        case InputState.REVIEW:
+          tmp = prevState.docData;
+          return { docData: { ...tmp, processedText: text } };
+        default:
+          return null;
+      }
+    });
   }
 
   handleButtonClick = async () => {
@@ -89,7 +91,12 @@ class ResumeInputCard extends Component<{}, CardState> {
           }
         );
 
-        this.loadData(JSON.stringify(response.data));
+        let parser = new Parser()
+        let renderer = new HtmlRenderer();
+        let html = renderer.render(parser.parse(response.data))
+        html = html.replace('\n', '')
+
+        this.loadData(html);
       }
       else {
         this.loadData(this.state.docText);
@@ -150,18 +157,25 @@ class ResumeInputCard extends Component<{}, CardState> {
         )}
         {loadState === LoadState.FINISHED ? (
           <div>
-            <h2>Returned Data:</h2>
-            <pre>input state: {inputState}</pre>
-            <pre>orig: {docData?.origText}</pre>
-            <pre>desc: {docData?.descText}</pre>
-            <pre>processed: {docData?.processedText}</pre>
+            <h1>Review:</h1>
+
+            <h2>Resume</h2>
+            <section>{docData?.origText}</section>
+
+            <h2>Job Description</h2>
+            <section>{docData?.descText}</section>
+
           </div>
         ) : (
           <></>
         )}
 
+
         {inputState === InputState.PROCESSED ? (
-          <></>
+          <>
+            <h1>Curated Resume:</h1>
+            <div dangerouslySetInnerHTML={{__html: docData.processedText}}></div>
+          </>
         ) : (
           <button onClick={this.handleButtonClick}>
             Submit
