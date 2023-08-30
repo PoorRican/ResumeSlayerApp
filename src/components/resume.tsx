@@ -31,15 +31,11 @@ function advance_input_state(origState: InputState): InputState {
 }
 
 type CardState = {
-  docText: string;
   loadState: LoadState;
   inputState: InputState;
-  docData: DocData;
-};
-
-type DocData = {
   origText: string;
   descText: string;
+  titleText: string;
   processedText: string;
 };
 
@@ -47,47 +43,26 @@ class ResumeInputCard extends Component<{}, CardState> {
   constructor(props: {}) {
     super(props);
     this.state = {
-      docText: "",
       loadState: LoadState.WAITING,
       inputState: InputState.RESUME,
-      docData: {origText: '', descText: '', processedText: ''}
+      origText: '',
+      descText: '',
+      titleText: '',
+      processedText: '',
     };
   }
 
-  handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    this.setState({ docText: e.target.value });
-  };
-
-  loadData = (text: string) => {
-    this.setState(prevState => {
-      let tmp: DocData;
-      switch (prevState.inputState) {
-        case InputState.RESUME:
-          tmp = prevState.docData;
-          return { docData: { ...tmp, origText: text } };
-        case InputState.DESCRIPTION:
-          tmp = prevState.docData;
-          return { docData: { ...tmp, descText: text } };
-        case InputState.REVIEW:
-          tmp = prevState.docData;
-          return { docData: { ...tmp, processedText: text } };
-        default:
-          return null;
-      }
-    });
-  }
-
   handleButtonClick = async () => {
-    this.setState({ loadState: LoadState.LOADING });
-
     try {
       if (this.state.inputState === InputState.REVIEW) {
+        this.setState({ loadState: LoadState.LOADING });
+
         const response = await axios.post(
           "http://localhost:8000/process",
           {
-            resume: this.state.docData?.origText,
-            description: this.state.docData?.descText,
-            title: "django developer"
+            resume: this.state.origText,
+            description: this.state.descText,
+            title: this.state.titleText,
           }
         );
 
@@ -96,21 +71,17 @@ class ResumeInputCard extends Component<{}, CardState> {
         let html = renderer.render(parser.parse(response.data))
         html = html.replace('\n', '')
 
-        this.loadData(html);
-      }
-      else {
-        this.loadData(this.state.docText);
+        this.setState({processedText: html});
       }
     } catch (error) {
       console.log(error);
-      this.loadData("An error occurred.")
+      this.setState({processedText: "An error occurred..."})
     } finally {
       // update states
       const next_input_state = advance_input_state(this.state.inputState);
       const finished = next_input_state === InputState.REVIEW || next_input_state === InputState.PROCESSED;
       const next_load_state = finished ? LoadState.FINISHED : LoadState.WAITING;
       this.setState({
-        docText: '',
         loadState: next_load_state,
         inputState: next_input_state
       });
@@ -118,35 +89,46 @@ class ResumeInputCard extends Component<{}, CardState> {
   };
 
   render() {
-    const { docText: inputText, loadState, docData, inputState } = this.state;
+    const { loadState, inputState, origText, descText, titleText, processedText } = this.state;
 
     return (
-      <div>
+      <section>
         {loadState === LoadState.WAITING && inputState === InputState.RESUME ? (
-          <div>
-            <h1>Your Resume:</h1>
+          <label>
+            Your Resume
 
             <textarea
-              value={inputText}
-              onChange={this.handleInputChange}
+              value={origText}
+              onChange={e => this.setState({origText: e.target.value})}
               placeholder="Enter some text here"
             />
-          </div>
+          </label>
         ) : (
           <></> 
         )}
         
         {loadState === LoadState.WAITING && inputState === InputState.DESCRIPTION ? (
-          <div>
-            <h1>Job Description:</h1>
+          <>
+            <label>
+              Job Title
 
-            <textarea
-              value={inputText}
-              onChange={this.handleInputChange}
-              placeholder="Enter some text here"
-            />
+              <input
+                value={titleText}
+                onChange={e => this.setState({titleText: e.target.value})}
+                placeholder="Enter a job title here"
+              />
+            </label>
 
-          </div>
+            <label>
+              Job Description
+
+              <textarea
+                value={descText}
+                onChange={e => this.setState({descText: e.target.value})}
+                placeholder="Enter a job description here"
+              />
+            </label>
+          </>
         ) : (
           <></> 
         )}
@@ -160,10 +142,14 @@ class ResumeInputCard extends Component<{}, CardState> {
             <h1>Review:</h1>
 
             <h2>Resume</h2>
-            <section>{docData?.origText}</section>
+            <section>{origText}</section>
 
-            <h2>Job Description</h2>
-            <section>{docData?.descText}</section>
+            <h2>Job Details</h2>
+            <h3>Title</h3>
+            <section>{titleText}</section>
+
+            <h3>Job Description</h3>
+            <section>{descText}</section>
 
           </div>
         ) : (
@@ -174,14 +160,14 @@ class ResumeInputCard extends Component<{}, CardState> {
         {inputState === InputState.PROCESSED ? (
           <>
             <h1>Curated Resume:</h1>
-            <div dangerouslySetInnerHTML={{__html: docData.processedText}}></div>
+            <div dangerouslySetInnerHTML={{__html: processedText}}></div>
           </>
         ) : (
           <button onClick={this.handleButtonClick}>
             Submit
           </button>
         )}
-      </div>
+      </section>
     );
   }
 }
