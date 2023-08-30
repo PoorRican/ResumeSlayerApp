@@ -81,10 +81,11 @@ class ResumeInputCard extends Component<{}, CardState> {
     try {
       if (this.state.inputState === InputState.REVIEW) {
         const response = await axios.post(
-          "<http://your-target-url-here.com>",
+          "http://localhost:8000/process",
           {
             resume: this.state.docData?.origText,
-            desc: this.state.docData?.descText,
+            description: this.state.docData?.descText,
+            title: "django developer"
           }
         );
 
@@ -94,6 +95,7 @@ class ResumeInputCard extends Component<{}, CardState> {
         this.loadData(this.state.docText);
       }
     } catch (error) {
+      console.log(error);
       this.loadData("An error occurred.")
     } finally {
       // update states
