@@ -39,7 +39,7 @@ type CardState = {
   processedText: string;
 };
 
-class ResumeInputCard extends Component<{}, CardState> {
+class InputCard extends Component<{}, CardState> {
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -176,4 +176,4 @@ class ResumeInputCard extends Component<{}, CardState> {
   }
 }
 
-export default ResumeInputCard;
+export default InputCard;
