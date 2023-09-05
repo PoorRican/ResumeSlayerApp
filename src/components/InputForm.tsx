@@ -47,7 +47,7 @@ type CardState = {
   processedText: string;
 };
 
-class InputCard extends Component<{}, CardState> {
+class InputForm extends Component<{}, CardState> {
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -184,4 +184,4 @@ class InputCard extends Component<{}, CardState> {
   }
 }
 
-export default InputCard;
+export default InputForm;
