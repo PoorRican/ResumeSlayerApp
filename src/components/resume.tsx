@@ -92,42 +92,44 @@ class ResumeInputCard extends Component<{}, CardState> {
     const { loadState, inputState, origText, descText, titleText, processedText } = this.state;
 
     return (
-      <section>
+      <section className="mx-auto max-w-4xl flex flex-col bg-slate-50 px-16 py-8">
         {loadState === LoadState.WAITING && inputState === InputState.RESUME ? (
-          <label>
-            Your Resume
+          <>
+            <label className="text-2xl font-medium pb-4 text-gray-600">
+              Your Resume
+            </label>
 
             <textarea
               value={origText}
               onChange={e => this.setState({origText: e.target.value})}
-              placeholder="Enter some text here"
+              placeholder="Enter or paste your resume/CV here"
+              rows={32}
             />
-          </label>
+          </>
         ) : (
           <></> 
         )}
         
         {loadState === LoadState.WAITING && inputState === InputState.DESCRIPTION ? (
           <>
-            <label>
+            <label className="text-2xl font-medium pb-4 text-gray-600">
               Job Title
-
-              <input
-                value={titleText}
-                onChange={e => this.setState({titleText: e.target.value})}
-                placeholder="Enter a job title here"
-              />
             </label>
 
-            <label>
+            <input
+              value={titleText}
+              onChange={e => this.setState({titleText: e.target.value})}
+              placeholder="Enter a job title here"
+            />
+
+            <label className="text-2xl font-medium pt-8 pb-4 text-gray-600">
               Job Description
-
-              <textarea
-                value={descText}
-                onChange={e => this.setState({descText: e.target.value})}
-                placeholder="Enter a job description here"
-              />
             </label>
+            <textarea
+              value={descText}
+              onChange={e => this.setState({descText: e.target.value})}
+              placeholder="Enter a job description here"
+            />
           </>
         ) : (
           <></> 
@@ -139,7 +141,7 @@ class ResumeInputCard extends Component<{}, CardState> {
         )}
         {loadState === LoadState.FINISHED ? (
           <div>
-            <h1>Review:</h1>
+            <h1 className="text-3xl font-medium">Review:</h1>
 
             <h2>Resume</h2>
             <section>{origText}</section>
@@ -163,10 +165,12 @@ class ResumeInputCard extends Component<{}, CardState> {
             <div dangerouslySetInnerHTML={{__html: processedText}}></div>
           </>
         ) : (
-          <button onClick={this.handleButtonClick}>
-            Submit
-          </button>
-        )}
+          <div className="pt-4">
+            <button onClick={this.handleButtonClick} className="bg-violet-500 text-white px-4 py-1 rounded-md float-right">
+              Next
+            </button>
+          </div>
+       )}
       </section>
     );
   }
