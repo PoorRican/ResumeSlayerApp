@@ -2,24 +2,32 @@ import React, { Component } from "react";
 import { HtmlRenderer, Parser } from "commonmark";
 import axios from "axios";
 
-enum LoadState {
-  WAITING,
-  LOADING,
-  FINISHED
+/**
+ * Represents state for server processing status
+ */
+enum ProcessingState {
+  INPUT,        // user is inputting and reviewing text
+  WAITING,      // text is being processed by server
+  FINISHED      // text has been returned by server
 }
 
+/**
+ * Input state values for form
+ * 
+ * State machine is handled by `advance_input_state()`
+ */
 enum InputState {
-  RESUME,
-  DESCRIPTION,
-  REVIEW,
-  PROCESSED
+  RESUME,       // user is inputting resume text
+  JOB_INFO,     // user is inputting job info (title & description)
+  REVIEW,       // user is reviewing text
+  PROCESSED     // processed resume text is being displayed
 }
 
 function advance_input_state(origState: InputState): InputState {
   switch (origState) {
     case InputState.RESUME:
-      return InputState.DESCRIPTION;
-    case InputState.DESCRIPTION:
+      return InputState.JOB_INFO;
+    case InputState.JOB_INFO:
       // TODO: add a mechanism to add multiple job desciptions
       return InputState.REVIEW;
     case InputState.REVIEW:
@@ -31,7 +39,7 @@ function advance_input_state(origState: InputState): InputState {
 }
 
 type CardState = {
-  loadState: LoadState;
+  loadState: ProcessingState;
   inputState: InputState;
   origText: string;
   descText: string;
@@ -43,7 +51,7 @@ class InputCard extends Component<{}, CardState> {
   constructor(props: {}) {
     super(props);
     this.state = {
-      loadState: LoadState.WAITING,
+      loadState: ProcessingState.INPUT,
       inputState: InputState.RESUME,
       origText: '',
       descText: '',
@@ -55,7 +63,7 @@ class InputCard extends Component<{}, CardState> {
   handleButtonClick = async () => {
     try {
       if (this.state.inputState === InputState.REVIEW) {
-        this.setState({ loadState: LoadState.LOADING });
+        this.setState({ loadState: ProcessingState.WAITING });
 
         const response = await axios.post(
           "http://localhost:8000/process",
@@ -80,7 +88,7 @@ class InputCard extends Component<{}, CardState> {
       // update states
       const next_input_state = advance_input_state(this.state.inputState);
       const finished = next_input_state === InputState.REVIEW || next_input_state === InputState.PROCESSED;
-      const next_load_state = finished ? LoadState.FINISHED : LoadState.WAITING;
+      const next_load_state = finished ? ProcessingState.FINISHED : ProcessingState.INPUT;
       this.setState({
         loadState: next_load_state,
         inputState: next_input_state
@@ -93,7 +101,7 @@ class InputCard extends Component<{}, CardState> {
 
     return (
       <section className="mx-auto max-w-4xl flex flex-col bg-slate-50 px-16 py-8">
-        {loadState === LoadState.WAITING && inputState === InputState.RESUME ? (
+        {loadState === ProcessingState.INPUT && inputState === InputState.RESUME ? (
           <>
             <label className="text-2xl font-medium pb-4 text-gray-600">
               Your Resume
@@ -110,7 +118,7 @@ class InputCard extends Component<{}, CardState> {
           <></> 
         )}
         
-        {loadState === LoadState.WAITING && inputState === InputState.DESCRIPTION ? (
+        {loadState === ProcessingState.INPUT && inputState === InputState.JOB_INFO ? (
           <>
             <label className="text-2xl font-medium pb-4 text-gray-600">
               Job Title
@@ -134,12 +142,12 @@ class InputCard extends Component<{}, CardState> {
         ) : (
           <></> 
         )}
-        {loadState === LoadState.LOADING ? (
+        {loadState === ProcessingState.WAITING ? (
           <div>Loading...</div>
         ) : (
           <></>
         )}
-        {loadState === LoadState.FINISHED ? (
+        {loadState === ProcessingState.FINISHED ? (
           <div>
             <h1 className="text-3xl font-medium">Review:</h1>
 
