@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ResumeFormData } from "../../ResumeApp";
+import FormData from "../../FormData";
 import FormButton from "../FormButton";
 import FieldGroup from './primitives/FieldGroup';
 import TextareaGroup from "./primitives/TextareaGroup";
@@ -16,7 +16,7 @@ enum InputState {
 }
 
 type FormProps = {
-  handleFormSubmit: (data: ResumeFormData) => void
+  handleFormSubmit: (data: FormData) => void
 };
 
 type FormState = {

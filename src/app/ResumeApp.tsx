@@ -3,6 +3,7 @@ import axios from "axios";
 import InputForm from "./components/input/InputForm";
 import ReviewText from "./components/ReviewText";
 import MarkdownBlock from "./components/MarkdownBlock";
+import FormData from "./FormData";
 
 /**
  * Represents state for server processing status
@@ -17,13 +18,7 @@ enum ProcessingState {
 type CardState = {
   processState: ProcessingState;
   processedText: string;
-  formData: ResumeFormData;
-}
-
-export interface ResumeFormData {
-  resume: string;
-  title: string;
-  description: string;
+  formData: FormData;
 }
 
 class ResumeApp extends Component<{}, CardState> {
@@ -66,7 +61,7 @@ class ResumeApp extends Component<{}, CardState> {
     }
   }
 
-  handleFormSubmit = (data: ResumeFormData) => {
+  handleFormSubmit = (data: FormData) => {
     this.setState({formData: data});
     this.advanceProcessState();
   }
