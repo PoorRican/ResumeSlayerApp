@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { HtmlRenderer, Parser } from "commonmark";
 import InputForm from "./InputForm";
 import ReviewText from "./ReviewText";
+import MarkdownBlock from "./MarkdownBlock";
 
 /**
  * Represents state for server processing status
@@ -57,10 +57,7 @@ class ResumeCard extends Component<{}, CardState> {
         "http://localhost:8000/process",
         this.state.formData
       );
-      let parser = new Parser()
-      let renderer = new HtmlRenderer();
-      let html = renderer.render(parser.parse(response.data))
-      this.setState({'processedText': html.replace('\n', '')})
+      this.setState({'processedText': response.data})
     } catch (error) {
       console.log(error);
       this.setState({processedText: "An error occurred..."})
@@ -92,7 +89,7 @@ class ResumeCard extends Component<{}, CardState> {
       case ProcessingState.WAITING:
         return <p>Loading...</p>;
       case ProcessingState.FINISHED:
-        return <div dangerouslySetInnerHTML={{__html: this.state.processedText}}></div>;
+        return <MarkdownBlock text={this.state.processedText} />
       default:
         return null;
     }
