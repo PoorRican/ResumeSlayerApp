@@ -88,12 +88,7 @@ class ResumeCard extends Component<{}, CardState> {
       case ProcessingState.INPUT:
         return <InputForm handleFormSubmit={this.handleFormSubmit} />;
       case ProcessingState.REVIEW:
-        return (
-          <>
-            <ReviewText {...this.state.formData} />
-            <button onClick={this.postForm}>Submit</button>
-          </>
-        );
+        return <ReviewText {...this.state.formData} handleSubmitForm={this.postForm} />;
       case ProcessingState.WAITING:
         return <p>Loading...</p>;
       case ProcessingState.FINISHED:

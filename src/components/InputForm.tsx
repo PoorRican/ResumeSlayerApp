@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { ResumeFormData } from "./ResumeCard";
+import FormButton from "./FormButton";
 
 /**
  * Input state values for form
@@ -92,11 +93,7 @@ class InputForm extends Component<FormProps, FormState> {
           <></> 
         )}
 
-        <div className="pt-4">
-          <button onClick={this.handleButtonClick} className="bg-violet-500 text-white px-4 py-1 rounded-md float-right">
-            Next
-          </button>
-        </div>
+        <FormButton onClick={this.handleButtonClick} text="Next" className="float-right"/>
       </section>
     );
   }
