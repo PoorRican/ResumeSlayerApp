@@ -2,34 +2,39 @@ import React from "react";
 import { ResumeFormData } from "./ResumeCard";
 import FormButton from "./FormButton";
 import MarkdownBlock from "./MarkdownBlock";
+import Card from "./Card";
 
 
+/**
+ * Allows user to review input text before submitting for processing.
+ * 
+ * @returns `section` presenting resume text, job title, and job description
+ */
 const ReviewText: React.FC<ResumeFormData & { handleSubmitForm: () => void }> = ({ resume, title, description, handleSubmitForm }) => {
   return (
-    <section className="flex flex-col">
+    <section className="flex flex-col gap-8">
 
-      <div>
-        <h1 className="text-3xl font-semibold">
-          Review Text
-        </h1>
+      <h1 className="text-3xl">
+        Review
+      </h1>
 
-        <h2 className="text-2xl text-gray-500 pt-8">
-          Your Old Resume:
-        </h2>
+      <Card title="Your Old Resume:">
         <div className="pl-2">
           <MarkdownBlock text={resume} />
         </div>
+      </Card>
 
-        <h2 className="text-2xl text-gray-500 pt-8">
-          Your New Job Title:
-        </h2>
+      <Card title="Your New Job:">
+        <h3 className="text-xl text-gray-600 font-light pb-4">
+          Title
+        </h3>
         <p>{title}</p>
 
-        <h2 className="text-2xl text-gray-500 pt-8">
-          Your New Job Description:
-        </h2>
+        <h3 className="text-xl text-gray-600 font-light pb-4">
+          Description
+        </h3>
         <p>{description}</p>
-      </div>
+      </Card>
 
       <FormButton onClick={handleSubmitForm} text="Submit" className="float-right"/>
     </section>
