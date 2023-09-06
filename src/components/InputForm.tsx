@@ -2,15 +2,6 @@ import React, { Component } from "react";
 import { ResumeFormData } from "./ResumeCard";
 
 /**
- * Represents state for server processing status
- */
-enum ProcessingState {
-  INPUT,        // user is inputting and reviewing text
-  WAITING,      // text is being processed by server
-  FINISHED      // text has been returned by server
-}
-
-/**
  * Input state values for form
  * 
  * State machine is handled by `advance_input_state()`
@@ -18,16 +9,6 @@ enum ProcessingState {
 enum InputState {
   RESUME,       // user is inputting resume text
   JOB_INFO,     // user is inputting job info (title & description)
-}
-
-function advance_input_state(origState: InputState): InputState {
-  switch (origState) {
-    case InputState.RESUME:
-      return InputState.JOB_INFO;
-    case InputState.JOB_INFO:
-      // TODO: add a mechanism to add multiple job desciptions
-      return InputState.JOB_INFO;
-  }
 }
 
 type FormProps = {
@@ -53,11 +34,15 @@ class InputForm extends Component<FormProps, FormState> {
   }
 
   handleButtonClick = () => {
-    this.props.handleFormSubmit({
-      resume: this.state.origText,
-      description: this.state.descText,
-      title: this.state.titleText
-    })
+    if (this.state.inputState === InputState.RESUME) {
+      this.setState({inputState: InputState.JOB_INFO})
+    } else {
+      this.props.handleFormSubmit({
+        resume: this.state.origText,
+        description: this.state.descText,
+        title: this.state.titleText
+      })
+    }
   };
 
   render() {

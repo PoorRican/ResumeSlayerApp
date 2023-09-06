@@ -50,11 +50,12 @@ class ResumeCard extends Component<{}, CardState> {
     this.setState({ processState: nextState });
   }
 
-  handleFormSubmit = async (data: ResumeFormData) => {
+  postForm = async () => {
     try {
+      this.advanceProcessState();
       const response = await axios.post(
         "http://localhost:8000/process",
-        data
+        this.state.formData
       );
       let parser = new Parser()
       let renderer = new HtmlRenderer();
@@ -66,6 +67,11 @@ class ResumeCard extends Component<{}, CardState> {
     } finally {
       this.advanceProcessState();
     }
+  }
+
+  handleFormSubmit = (data: ResumeFormData) => {
+    this.setState({formData: data});
+    this.advanceProcessState();
   }
   
   constructor(props: {}) {
@@ -82,7 +88,12 @@ class ResumeCard extends Component<{}, CardState> {
       case ProcessingState.INPUT:
         return <InputForm handleFormSubmit={this.handleFormSubmit} />;
       case ProcessingState.REVIEW:
-        return <ReviewText {...this.state.formData} />;
+        return (
+          <>
+            <ReviewText {...this.state.formData} />
+            <button onClick={this.postForm}>Submit</button>
+          </>
+        );
       case ProcessingState.WAITING:
         return <p>Loading...</p>;
       case ProcessingState.FINISHED:
