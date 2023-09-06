@@ -10,11 +10,6 @@ const MarkdownBlock: FC<MarkdownBlockProps> = ({ text }) => {
   let parser = new Parser()
   let renderer = new HtmlRenderer();
 
-  let parsed = parser.parse(text);
-  var walker = parsed.walker();
-  var event, node;
-
-
   let html = renderer.render(parser.parse(text))
   html = html.replace('\n', '');
 
