@@ -19,8 +19,9 @@ const MarkdownBlock: FC<MarkdownBlockProps> = ({ text }) => {
   html = html.replace(/<h3\b/g, '<h1 class="text-lg pt-2 pb-4"');  
   html = html.replace(/<h4\b/g, '<h1 class="text-md pt-8 pb-4"');  
   html = html.replace(/<ul\b/g, '<ul class="list-disc pl-2"');  
+  html = html.replace(/<li\b/g, '<li class="list-disc"');  
 
-  return <div dangerouslySetInnerHTML={{__html: html}}></div>;
+  return <article dangerouslySetInnerHTML={{__html: html}}></article>;
 }
 
 export default MarkdownBlock;

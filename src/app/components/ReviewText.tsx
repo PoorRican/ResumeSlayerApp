@@ -33,7 +33,9 @@ const ReviewText: React.FC<ResumeFormData & { handleSubmitForm: () => void }> = 
         <h3 className="text-xl text-gray-600 font-light pb-4">
           Description
         </h3>
-        <p>{description}</p>
+        <div>
+          <MarkdownBlock text={description} />
+        </div>
       </Card>
 
       <FormButton onClick={handleSubmitForm} text="Submit" className="float-right"/>
