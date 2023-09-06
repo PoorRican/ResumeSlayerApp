@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import InputForm from "./components/InputForm";
+import InputForm from "./components/input/InputForm";
 import ReviewText from "./components/ReviewText";
 import MarkdownBlock from "./components/MarkdownBlock";
 
