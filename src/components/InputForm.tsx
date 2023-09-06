@@ -24,6 +24,76 @@ type FormState = {
   titleText: string;
 };
 
+interface InputProps {
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+  placeholder: string;
+  description?: string;
+};
+
+const InputDescription: React.FC<{ description?: string }> = ({ description }) => {
+  if (description) {
+    return (
+      <p className={"text-gray-400 pb-4 font-light"}>
+        {description}
+      </p>
+    );
+  } else {
+    return null;
+  }
+};
+
+const InputLabel: React.FC<{ label?: string }> = ({ label }) => {
+  if (label) {
+    return (
+      <label className="text-lg pb-4 text-gray-500">
+        {label}
+      </label>
+    );
+  } else {
+    return null;
+  }
+};
+
+
+const TextareaGroup: React.FC<InputProps> = ({ label, onChange, value, placeholder, description }) => {
+  return (
+    <div>
+      <InputLabel label={label} />
+
+      <InputDescription description={description} />
+
+      <textarea
+        className="bg-transparent w-full"
+        onChange={(e) => onChange(e.target.value)}
+        rows={32}
+        value={value}
+        placeholder={placeholder}
+      />
+    </div>
+  );
+};
+
+
+const FieldGroup: React.FC<InputProps> = ({ label, description, onChange, value, placeholder }) => {
+  return (
+    <div>
+      <InputLabel label={label} />
+
+      <InputDescription description={description} />
+
+      <input
+        className="bg-transparent w-full"
+        type="text"
+        onChange={(e) => onChange(e.target.value)}
+        value={value}
+        placeholder={placeholder} />
+    </div>
+  );
+};
+
+
 class InputForm extends Component<FormProps, FormState> {
   constructor(props: FormProps) {
     super(props);
@@ -54,22 +124,15 @@ class InputForm extends Component<FormProps, FormState> {
       <div className="flex flex-col">
         {inputState === InputState.RESUME ? (
           <Card className={"flex flex-col"} title="Your Old Resume:">
-            <label className="text-2xl pb-4 text-gray-500">
-              Resume Text
-            </label>
 
-            <p className={"text-gray-400 pb-4 font-light"}>
-              Paste in your resume text. It's best to provide your master resume or your most generic resume.
-              The more data, the better.
-              You may optionally format you resume as markdown.
-            </p>
-
-            <textarea
-              value={origText}
-              onChange={e => this.setState({origText: e.target.value})}
+            <TextareaGroup
+              description="Paste in your resume text. It's best to provide your master resume or your most generic resume. The more data, the better."
+              label="Resume Text"
+              onChange={val => this.setState({origText: val})}
               placeholder="Enter or paste your resume/CV here"
-              rows={32}
+              value={origText}
             />
+
           </Card>
         ) : (
           <></> 
@@ -77,24 +140,21 @@ class InputForm extends Component<FormProps, FormState> {
         
         {inputState === InputState.JOB_INFO ? (
           <Card className={"flex flex-col"} title="Your New Job:">
-            <label className="text-2xl font-medium pb-4 text-gray-600">
-              Title
-            </label>
 
-            <input
+            <FieldGroup
+              label="Title"
+              onChange={val => this.setState({titleText: val})}
               value={titleText}
-              onChange={e => this.setState({titleText: e.target.value})}
-              placeholder="Enter a job title here"
+              placeholder="Enter the job title here"
             />
 
-            <label className="text-2xl font-medium pt-8 pb-4 text-gray-600">
-              Description
-            </label>
-            <textarea
+            <TextareaGroup
+              label="Description"
+              onChange={val => this.setState({descText: val})}
+              placeholder="Enter the job description here"
               value={descText}
-              onChange={e => this.setState({descText: e.target.value})}
-              placeholder="Enter a job description here"
             />
+
           </Card>
         ) : (
           <></> 
