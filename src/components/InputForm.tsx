@@ -49,7 +49,7 @@ class InputForm extends Component<FormProps, FormState> {
     const { inputState, origText, descText, titleText } = this.state;
 
     return (
-      <section className="mx-auto max-w-4xl flex flex-col bg-slate-50 px-16 py-8">
+      <section className="flex flex-col">
         {inputState === InputState.RESUME ? (
           <>
             <label className="text-2xl font-medium pb-4 text-gray-600">
