@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ResumeFormData } from "./ResumeCard";
+import { ResumeFormData } from "../ResumeApp";
 import FormButton from "./FormButton";
 import Card from "./Card";
 

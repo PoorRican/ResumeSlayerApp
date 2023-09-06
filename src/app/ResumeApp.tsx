@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import axios from "axios";
-import InputForm from "./InputForm";
-import ReviewText from "./ReviewText";
-import MarkdownBlock from "./MarkdownBlock";
+import InputForm from "./components/InputForm";
+import ReviewText from "./components/ReviewText";
+import MarkdownBlock from "./components/MarkdownBlock";
 
 /**
  * Represents state for server processing status
@@ -26,7 +26,7 @@ export interface ResumeFormData {
   description: string;
 }
 
-class ResumeCard extends Component<{}, CardState> {
+class ResumeApp extends Component<{}, CardState> {
   advanceProcessState = () => {
     const { processState } = this.state;
     let nextState;
@@ -96,4 +96,4 @@ class ResumeCard extends Component<{}, CardState> {
   }
 }
 
-export default ResumeCard;
+export default ResumeApp;
