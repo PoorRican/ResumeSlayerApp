@@ -1,9 +1,9 @@
-import React, { Component } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import InputForm from "./components/input/InputForm";
 import ReviewText from "./components/ReviewText";
 import MarkdownBlock from "./components/MarkdownBlock";
 import FormData from "./FormData";
+import useWebSocket from "react-use-websocket";
 
 /**
  * Represents state for server processing status
@@ -15,15 +15,24 @@ enum ProcessingState {
   FINISHED      // text has been returned by server
 }
 
-type CardState = {
-  processState: ProcessingState;
-  processedText: string;
-  formData: FormData;
-}
+const SOCKET_URL = "ws://localhost:8000/ws";
 
-class ResumeApp extends Component<{}, CardState> {
-  advanceProcessState = () => {
-    const { processState } = this.state;
+const ResumeApp = () => {
+
+  const [processState, setProcessState] = useState(ProcessingState.INPUT);
+  const [processedText, setProcessedText] = useState('');
+  const [formData, setFormData] = useState({ title: '', description: '', resume: '' });
+  const { sendMessage, lastMessage, readyState } = useWebSocket(SOCKET_URL);
+
+  useEffect(() => {
+    if (lastMessage !== null) {
+      setProcessedText(lastMessage.data);
+      advanceProcessState();
+    }
+  }, [lastMessage, setProcessedText]);
+
+
+  const advanceProcessState = () => {
     let nextState;
     switch (processState) {
       case ProcessingState.INPUT:
@@ -42,52 +51,34 @@ class ResumeApp extends Component<{}, CardState> {
         nextState = processState;
         break;
     }
-    this.setState({ processState: nextState });
+    setProcessState(nextState);
   }
 
-  postForm = async () => {
-    try {
-      this.advanceProcessState();
-      const response = await axios.post(
-        "http://localhost:8000/process",
-        this.state.formData
-      );
-      this.setState({'processedText': response.data})
-    } catch (error) {
-      console.log(error);
-      this.setState({processedText: "An error occurred..."})
-    } finally {
-      this.advanceProcessState();
-    }
+  const postForm = async () => {
+    advanceProcessState();
+    sendMessage(formData.resume);
+    sendMessage(formData.title);
+    sendMessage(formData.description);
+
   }
 
-  handleFormSubmit = (data: FormData) => {
-    this.setState({formData: data});
-    this.advanceProcessState();
-  }
-  
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      processState: ProcessingState.INPUT,
-      processedText: '',
-      formData: {title: '', description: '', resume: ''}
-    }
+  const handleFormSubmit = (data: FormData) => {
+    // logic here
+    setFormData(data)
+    advanceProcessState();
   }
 
-  render() {
-    switch (this.state.processState) {
-      case ProcessingState.INPUT:
-        return <InputForm handleFormSubmit={this.handleFormSubmit} />;
-      case ProcessingState.REVIEW:
-        return <ReviewText {...this.state.formData} handleSubmitForm={this.postForm} />;
-      case ProcessingState.WAITING:
-        return <p>Loading...</p>;
-      case ProcessingState.FINISHED:
-        return <MarkdownBlock text={this.state.processedText} />
-      default:
-        return null;
-    }
+  switch (processState) {
+    case ProcessingState.INPUT:
+      return <InputForm handleFormSubmit={handleFormSubmit} />;
+    case ProcessingState.REVIEW:
+      return <ReviewText {...formData} handleSubmitForm={postForm} />;
+    case ProcessingState.WAITING:
+      return <p>Loading...</p>;
+    case ProcessingState.FINISHED:
+      return <MarkdownBlock text={processedText} />
+    default:
+      return null;
   }
 }
 
