@@ -1,5 +1,5 @@
 import React from "react";
-import { ResumeFormData } from "../ResumeApp";
+import FormData from "../FormData";
 import FormButton from "./FormButton";
 import MarkdownBlock from "./MarkdownBlock";
 import Card from "./Card";
@@ -10,7 +10,7 @@ import Card from "./Card";
  * 
  * @returns `section` presenting resume text, job title, and job description
  */
-const ReviewText: React.FC<ResumeFormData & { handleSubmitForm: () => void }> = ({ resume, title, description, handleSubmitForm }) => {
+const ReviewText: React.FC<FormData & { handleSubmitForm: () => void }> = ({ resume, title, description, handleSubmitForm }) => {
   return (
     <section className="flex flex-col gap-8">
 
