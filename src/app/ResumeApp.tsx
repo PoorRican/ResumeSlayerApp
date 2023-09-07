@@ -15,7 +15,7 @@ enum ProcessingState {
   FINISHED      // text has been returned by server
 }
 
-const SOCKET_URL = "ws://localhost:8000/ws";
+const SOCKET_URL = "wss://master-7rqtwti-ca5gmpudda7qo.us.platformsh.site/ws";
 
 const ResumeApp = () => {
 
@@ -56,10 +56,10 @@ const ResumeApp = () => {
 
   const postForm = async () => {
     advanceProcessState();
+
     sendMessage(formData.resume);
     sendMessage(formData.title);
     sendMessage(formData.description);
-
   }
 
   const handleFormSubmit = (data: FormData) => {
