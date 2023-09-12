@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import InputForm from "./components/input/InputForm";
 import ReviewText from "./components/ReviewText";
 import MarkdownBlock from "./components/MarkdownBlock";
@@ -24,35 +24,7 @@ const ResumeApp = () => {
   const [formData, setFormData] = useState({ title: '', description: '', resume: '' });
   const { sendMessage, lastMessage, readyState } = useWebSocket(SOCKET_URL);
 
-  useEffect(() => {
-    switch (readyState) {
-      case ReadyState.OPEN:
-        if (lastMessage !== null) {
-          console.log(processState);
-          setProcessedText(lastMessage.data);
-          advanceProcessState();
-        }
-        break;
-      case ReadyState.UNINSTANTIATED:
-        console.log("Ready state is UNINSTANTIATED");
-        break;
-      case ReadyState.CLOSING:
-        console.log("Ready state is CLOSING");
-        break;
-      case ReadyState.CLOSED:
-        console.log("Ready state is CLOSED");
-        break;
-      case ReadyState.CONNECTING:
-        console.log("Ready state is CONNECTING");
-        break;
-      default:
-        console.log("Ready state is unknown");
-        break;
-    }
-  // eslint-disable-next-line
-  }, [lastMessage, processState, readyState]);
-
-  const advanceProcessState = () => {
+  const advanceProcessState = useCallback(() => {
     let nextState;
     switch (processState) {
       case ProcessingState.INPUT:
@@ -72,8 +44,39 @@ const ResumeApp = () => {
         break;
     }
     setProcessState(nextState);
-  }
+  }, [processState]);
 
+  useEffect(() => {
+    if (processState === ProcessingState.WAITING && lastMessage !== null) {
+      setProcessedText(lastMessage.data);
+      advanceProcessState();
+    }
+  }, [lastMessage, processState, advanceProcessState])
+
+  // show websocket state on console
+  useEffect(() => {
+    switch (readyState) {
+      case ReadyState.OPEN:
+        console.log("Socket state is OPEN");
+        break;
+      case ReadyState.UNINSTANTIATED:
+        console.log("Socket state is UNINSTANTIATED");
+        break;
+      case ReadyState.CLOSING:
+        console.log("Socket state is CLOSING");
+        break;
+      case ReadyState.CLOSED:
+        console.log("Socket state is CLOSED");
+        break;
+      case ReadyState.CONNECTING:
+        console.log("Socket state is CONNECTING");
+        break;
+      default:
+        console.log("Socket state is unknown");
+        break;
+    }
+  }, [readyState]);
+  
   const postForm = async () => {
     advanceProcessState();
 
