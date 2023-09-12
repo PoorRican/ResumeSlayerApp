@@ -3,7 +3,7 @@ import InputForm from "./components/input/InputForm";
 import ReviewText from "./components/ReviewText";
 import MarkdownBlock from "./components/MarkdownBlock";
 import FormData from "./FormData";
-import useWebSocket from "react-use-websocket";
+import useWebSocket, {ReadyState} from "react-use-websocket";
 
 /**
  * Represents state for server processing status
@@ -25,12 +25,32 @@ const ResumeApp = () => {
   const { sendMessage, lastMessage, readyState } = useWebSocket(SOCKET_URL);
 
   useEffect(() => {
-    if (lastMessage !== null) {
-      setProcessedText(lastMessage.data);
-      advanceProcessState();
+    switch (readyState) {
+      case ReadyState.OPEN:
+        if (lastMessage !== null) {
+          console.log(processState);
+          setProcessedText(lastMessage.data);
+          advanceProcessState();
+        }
+        break;
+      case ReadyState.UNINSTANTIATED:
+        console.log("Ready state is UNINSTANTIATED");
+        break;
+      case ReadyState.CLOSING:
+        console.log("Ready state is CLOSING");
+        break;
+      case ReadyState.CLOSED:
+        console.log("Ready state is CLOSED");
+        break;
+      case ReadyState.CONNECTING:
+        console.log("Ready state is CONNECTING");
+        break;
+      default:
+        console.log("Ready state is unknown");
+        break;
     }
-  }, [lastMessage, setProcessedText]);
-
+  // eslint-disable-next-line
+  }, [lastMessage, processState, readyState]);
 
   const advanceProcessState = () => {
     let nextState;
