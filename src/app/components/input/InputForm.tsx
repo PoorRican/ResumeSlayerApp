@@ -65,6 +65,7 @@ class InputForm extends Component<FormProps, FormState> {
               onChange={val => this.setState({origText: val})}
               placeholder="Enter or paste your resume/CV here"
               value={origText}
+              id="resume_text"
             />
 
           </Card>
@@ -80,6 +81,7 @@ class InputForm extends Component<FormProps, FormState> {
               onChange={val => this.setState({titleText: val})}
               value={titleText}
               placeholder="Enter the job title here"
+              id="job_title"
             />
 
             <TextareaGroup
@@ -87,6 +89,7 @@ class InputForm extends Component<FormProps, FormState> {
               onChange={val => this.setState({descText: val})}
               placeholder="Enter the job description here"
               value={descText}
+              id="description"
             />
 
           </Card>

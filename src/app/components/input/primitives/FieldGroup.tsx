@@ -2,7 +2,7 @@ import InputProps from './InputProps';
 import InputLabel from './InputLabel';
 import InputDescription from './InputDescription';
 
-const FieldGroup: React.FC<InputProps> = ({ label, description, onChange, value, placeholder }) => {
+const FieldGroup: React.FC<InputProps> = ({ label, description, onChange, value, placeholder, id }) => {
   return (
     <div>
       <InputLabel label={label} />
@@ -10,6 +10,7 @@ const FieldGroup: React.FC<InputProps> = ({ label, description, onChange, value,
       <InputDescription description={description} />
 
       <input
+        id={id}
         className="bg-transparent w-full"
         type="text"
         onChange={(e) => onChange(e.target.value)}
