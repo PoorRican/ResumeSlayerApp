@@ -59,3 +59,16 @@ test('SPA functionality', async () => {
   expect(processedTextContent).toContain("Correct websocket sequence received");
   
 });
+
+test('handle sudden crash', async () => {
+  const MOCK_SOCKET_URL = "ws://localhost:8000/ws/crash";
+
+  render(<ResumeApp socketUrl={MOCK_SOCKET_URL} />);
+
+  doInputAndSubmit();
+
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+
+  const errorCard = screen.getByTestId("error_card");
+  expect(errorCard).toBeInTheDocument();
+});
