@@ -24,6 +24,7 @@ const ResumeApp = () => {
   const [formData, setFormData] = useState({ title: '', description: '', resume: '' });
   const { sendMessage, lastMessage, readyState } = useWebSocket(SOCKET_URL);
 
+  // advance state
   const advanceProcessState = useCallback(() => {
     let nextState;
     switch (processState) {
@@ -46,6 +47,7 @@ const ResumeApp = () => {
     setProcessState(nextState);
   }, [processState]);
 
+  // handle incoming data
   useEffect(() => {
     if (processState === ProcessingState.WAITING && lastMessage !== null) {
       setProcessedText(lastMessage.data);
@@ -57,25 +59,29 @@ const ResumeApp = () => {
   useEffect(() => {
     switch (readyState) {
       case ReadyState.OPEN:
-        console.log("Socket state is OPEN");
+        console.info("Socket is OPEN");
         break;
       case ReadyState.UNINSTANTIATED:
-        console.log("Socket state is UNINSTANTIATED");
+        console.info("Socket is UNINSTANTIATED");
         break;
       case ReadyState.CLOSING:
-        console.log("Socket state is CLOSING");
+        console.info("Socket is CLOSING");
         break;
       case ReadyState.CLOSED:
-        console.log("Socket state is CLOSED");
+        if (processState !== ProcessingState.FINISHED) {
+          console.error("Socket was unexpectedly closed...");
+        } else {
+          console.info("Socket is CLOSED");
+        }
         break;
       case ReadyState.CONNECTING:
-        console.log("Socket state is CONNECTING");
+        console.info("Socket is CONNECTING");
         break;
       default:
-        console.log("Socket state is unknown");
-        break;
+        console.warn("Socket state is unknown");
+        break
     }
-  }, [readyState]);
+  }, [readyState, processState]);
   
   const postForm = async () => {
     advanceProcessState();
@@ -86,7 +92,6 @@ const ResumeApp = () => {
   }
 
   const handleFormSubmit = (data: FormData) => {
-    // logic here
     setFormData(data)
     advanceProcessState();
   }
