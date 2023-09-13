@@ -2,11 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import ResumeApp from './ResumeApp';
 
-test('SPA functionality', async () => {
-  const MOCK_SOCKET_URL = "ws://localhost:8000/ws/true";
-
-  render(<ResumeApp socketUrl={MOCK_SOCKET_URL} />);
-
+const doInputAndSubmit = () => {
   const resumeTextInput = screen.getByTestId("resume_text");
   expect(resumeTextInput).toBeInTheDocument();
 
@@ -45,6 +41,14 @@ test('SPA functionality', async () => {
 
   const progressComponent = screen.getByTestId("progress_component");
   expect(progressComponent).toBeInTheDocument();
+}
+
+test('SPA functionality', async () => {
+  const MOCK_SOCKET_URL = "ws://localhost:8000/ws/bypass";
+
+  render(<ResumeApp socketUrl={MOCK_SOCKET_URL} />);
+
+  doInputAndSubmit();
 
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
