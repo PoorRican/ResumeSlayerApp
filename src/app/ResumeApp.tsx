@@ -16,8 +16,8 @@ enum ProcessingState {
   FINISHED      // text has been returned by server
 }
 
-// const SOCKET_URL = "wss://master-7rqtwti-ca5gmpudda7qo.us.platformsh.site/ws";
-const SOCKET_URL = "wss://development-q5nzhaa-ca5gmpudda7qo.us.platformsh.site/ws";
+const SOCKET_URL = "wss://master-7rqtwti-ca5gmpudda7qo.us.platformsh.site/ws";
+// const SOCKET_URL = "wss://development-q5nzhaa-ca5gmpudda7qo.us.platformsh.site/ws";
 // const SOCKET_URL = "ws://localhost:8000/ws";
 
 interface ResumeAppProps {
