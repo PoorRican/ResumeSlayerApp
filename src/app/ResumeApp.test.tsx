@@ -2,6 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import ResumeApp from './ResumeApp';
 
+
+jest.setTimeout(25000)
+
 const doInputAndSubmit = () => {
   const resumeTextInput = screen.getByTestId("resume_text");
   expect(resumeTextInput).toBeInTheDocument();
@@ -44,13 +47,13 @@ const doInputAndSubmit = () => {
 }
 
 test('SPA functionality', async () => {
-  const MOCK_SOCKET_URL = "ws://localhost:8000/ws/bypass";
+  const MOCK_SOCKET_URL = "wss://development-q5nzhaa-ca5gmpudda7qo.us.platformsh.site/ws/bypass";
 
   render(<ResumeApp socketUrl={MOCK_SOCKET_URL} />);
 
   doInputAndSubmit();
 
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await new Promise((resolve) => setTimeout(resolve, 10000));
 
   const processedText = screen.getByTestId("processed_text");
   expect(processedText).toBeInTheDocument();
@@ -61,13 +64,13 @@ test('SPA functionality', async () => {
 });
 
 test('handle sudden crash', async () => {
-  const MOCK_SOCKET_URL = "ws://localhost:8000/ws/crash";
+  const MOCK_SOCKET_URL = "wss://development-q5nzhaa-ca5gmpudda7qo.us.platformsh.site/ws/crash";
 
   render(<ResumeApp socketUrl={MOCK_SOCKET_URL} />);
 
   doInputAndSubmit();
 
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await new Promise((resolve) => setTimeout(resolve, 10000));
 
   const errorCard = screen.getByTestId("error_card");
   expect(errorCard).toBeInTheDocument();
