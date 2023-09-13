@@ -4,4 +4,5 @@ export default interface InputProps {
   value: string;
   placeholder: string;
   description?: string;
+  id?: string
 };

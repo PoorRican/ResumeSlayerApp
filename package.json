@@ -1,6 +1,6 @@
 {
   "name": "resume-slayer-site",
-  "version": "0.1.0",
+  "version": "v0.1.1-beta",
   "private": true,
   "dependencies": {
     "@tailwindcss/nesting": "^0.0.0-insiders.565cd3e",

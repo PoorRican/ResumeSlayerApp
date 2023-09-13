@@ -12,7 +12,7 @@ import Card from "./Card";
  */
 const ReviewText: React.FC<FormData & { handleSubmitForm: () => void }> = ({ resume, title, description, handleSubmitForm }) => {
   return (
-    <section className="flex flex-col gap-8">
+    <section className="flex flex-col gap-8" data-testid="review_text">
 
       <h1 className="text-3xl">
         Review
@@ -38,7 +38,7 @@ const ReviewText: React.FC<FormData & { handleSubmitForm: () => void }> = ({ res
         </div>
       </Card>
 
-      <FormButton onClick={handleSubmitForm} text="Submit" className="float-right"/>
+      <FormButton onClick={handleSubmitForm} text="Submit" className="float-right" id="final_submit_button"/>
     </section>
   );
 };
