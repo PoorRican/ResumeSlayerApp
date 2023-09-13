@@ -38,7 +38,7 @@ const ReviewText: React.FC<FormData & { handleSubmitForm: () => void }> = ({ res
         </div>
       </Card>
 
-      <FormButton onClick={handleSubmitForm} text="Submit" className="float-right"/>
+      <FormButton onClick={handleSubmitForm} text="Submit" className="float-right" id="final_submit_button"/>
     </section>
   );
 };

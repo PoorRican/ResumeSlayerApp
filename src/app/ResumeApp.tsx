@@ -17,12 +17,15 @@ enum ProcessingState {
 
 const SOCKET_URL = "wss://master-7rqtwti-ca5gmpudda7qo.us.platformsh.site/ws";
 
-const ResumeApp = () => {
+interface ResumeAppProps {
+  socketUrl?: string;
+}
 
+const ResumeApp = ({ socketUrl = SOCKET_URL }: ResumeAppProps) => {
   const [processState, setProcessState] = useState(ProcessingState.INPUT);
   const [processedText, setProcessedText] = useState('');
   const [formData, setFormData] = useState({ title: '', description: '', resume: '' });
-  const { sendMessage, lastMessage, readyState } = useWebSocket(SOCKET_URL);
+  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
 
   // advance state
   const advanceProcessState = useCallback(() => {
@@ -102,12 +105,18 @@ const ResumeApp = () => {
     case ProcessingState.REVIEW:
       return <ReviewText {...formData} handleSubmitForm={postForm} />;
     case ProcessingState.WAITING:
-      return <p>Loading...</p>;
+      return (
+        <div data-testid="progress_component">
+          <label htmlFor={"file"}>File progress:</label>
+
+          <progress id="file" max="1" value="0">X%</progress>
+        </div>
+);
     case ProcessingState.FINISHED:
-      return <MarkdownBlock text={processedText} />
+      return <div data-testid="processed_text"><MarkdownBlock text={processedText}/></div>
     default:
       return null;
   }
 }
 
-export default ResumeApp;
+export default ResumeApp; 
