@@ -10,7 +10,7 @@ const TextareaGroup: React.FC<InputProps> = ({ label, onChange, value, placehold
       <InputDescription description={description} />
 
       <textarea
-        id={id}
+        data-testid={id}
         className="bg-transparent w-full"
         onChange={(e) => onChange(e.target.value)}
         rows={32}

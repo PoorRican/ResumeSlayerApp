@@ -10,7 +10,7 @@ const FieldGroup: React.FC<InputProps> = ({ label, description, onChange, value,
       <InputDescription description={description} />
 
       <input
-        id={id}
+        data-testid={id}
         className="bg-transparent w-full"
         type="text"
         onChange={(e) => onChange(e.target.value)}
