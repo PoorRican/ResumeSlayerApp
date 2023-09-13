@@ -9,7 +9,9 @@ test('SPA functionality', () => {
   expect(resumeTextInput).toBeInTheDocument();
 
   const nextButton = screen.getByText(/Next/i);
+
   act(() => {
+    fireEvent.change(resumeTextInput, { target: { value: "mock resume" } });
     fireEvent.click(nextButton)
   });
 
@@ -22,6 +24,8 @@ test('SPA functionality', () => {
   expect(descInput).toBeInTheDocument();
 
   act(() => {
+    fireEvent.change(titleInput, { target: { value: "mock job title" } });
+    fireEvent.change(descInput, { target: { value: "mock job description" } });
     fireEvent.click(nextButton)
   });
 
