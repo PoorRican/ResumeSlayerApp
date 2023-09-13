@@ -2,9 +2,9 @@ import React, { useEffect, useState, useCallback } from "react";
 import InputForm from "./components/input/InputForm";
 import ReviewText from "./components/ReviewText";
 import MarkdownBlock from "./components/MarkdownBlock";
+import ErrorCard from "./components/ErrorCard";
 import FormData from "./FormData";
 import useWebSocket, {ReadyState} from "react-use-websocket";
-import Card from "./components/Card";
 
 /**
  * Represents state for server processing status
@@ -30,6 +30,7 @@ const ResumeApp = ({ socketUrl = SOCKET_URL }: ResumeAppProps) => {
   const [formData, setFormData] = useState({ title: '', description: '', resume: '' });
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
   const [websocketError, setWebsocketError] = useState(false);
+  const [errorReason, setErrorReason] = useState('');
 
   // advance state
   const advanceProcessState = useCallback(() => {
@@ -61,6 +62,7 @@ const ResumeApp = ({ socketUrl = SOCKET_URL }: ResumeAppProps) => {
 
       // handle an error being returned by server 
       if (data.includes('Error')) {
+        setErrorReason('Server error');
         setWebsocketError(true);
       }
 
@@ -87,6 +89,7 @@ const ResumeApp = ({ socketUrl = SOCKET_URL }: ResumeAppProps) => {
         if (processState !== ProcessingState.FINISHED) {
           console.error("Socket was unexpectedly closed...");
           setWebsocketError(true);
+          setErrorReason('Socket closed unexpectedly');
           setProcessedText("Connection unexpectedly closed...");
           advanceProcessState();
         } else {
@@ -127,10 +130,10 @@ const ResumeApp = ({ socketUrl = SOCKET_URL }: ResumeAppProps) => {
 
           <progress id="file" max="1" value="0">X%</progress>
         </div>
-);
+      );
     case ProcessingState.FINISHED:
       if (websocketError) {
-        return <div data-testid="error_card"><Card title="Websocket Error">{ processedText }</Card></div>
+        return <ErrorCard title={errorReason} text={processedText} />
       } else {
         return <div data-testid="processed_text"><MarkdownBlock text={processedText}/></div>
       }
