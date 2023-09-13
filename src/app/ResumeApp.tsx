@@ -4,6 +4,7 @@ import ReviewText from "./components/ReviewText";
 import MarkdownBlock from "./components/MarkdownBlock";
 import FormData from "./FormData";
 import useWebSocket, {ReadyState} from "react-use-websocket";
+import Card from "./components/Card";
 
 /**
  * Represents state for server processing status
@@ -15,7 +16,9 @@ enum ProcessingState {
   FINISHED      // text has been returned by server
 }
 
-const SOCKET_URL = "wss://master-7rqtwti-ca5gmpudda7qo.us.platformsh.site/ws";
+// const SOCKET_URL = "wss://master-7rqtwti-ca5gmpudda7qo.us.platformsh.site/ws";
+const SOCKET_URL = "wss://development-q5nzhaa-ca5gmpudda7qo.us.platformsh.site/ws";
+// const SOCKET_URL = "ws://localhost:8000/ws";
 
 interface ResumeAppProps {
   socketUrl?: string;
@@ -26,6 +29,7 @@ const ResumeApp = ({ socketUrl = SOCKET_URL }: ResumeAppProps) => {
   const [processedText, setProcessedText] = useState('');
   const [formData, setFormData] = useState({ title: '', description: '', resume: '' });
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+  const [websocketError, setWebsocketError] = useState(false);
 
   // advance state
   const advanceProcessState = useCallback(() => {
@@ -53,7 +57,14 @@ const ResumeApp = ({ socketUrl = SOCKET_URL }: ResumeAppProps) => {
   // handle incoming data
   useEffect(() => {
     if (processState === ProcessingState.WAITING && lastMessage !== null) {
-      setProcessedText(lastMessage.data);
+      const data = lastMessage.data;
+
+      // handle an error being returned by server 
+      if (data.includes('Error')) {
+        setWebsocketError(true);
+      }
+
+      setProcessedText(data);
       advanceProcessState();
     }
   }, [lastMessage, processState, advanceProcessState])
@@ -71,8 +82,13 @@ const ResumeApp = ({ socketUrl = SOCKET_URL }: ResumeAppProps) => {
         console.info("Socket is CLOSING");
         break;
       case ReadyState.CLOSED:
+
+        // handle socket being unexpectedly closed
         if (processState !== ProcessingState.FINISHED) {
           console.error("Socket was unexpectedly closed...");
+          setWebsocketError(true);
+          setProcessedText("Connection unexpectedly closed...");
+          advanceProcessState();
         } else {
           console.info("Socket is CLOSED");
         }
@@ -84,7 +100,7 @@ const ResumeApp = ({ socketUrl = SOCKET_URL }: ResumeAppProps) => {
         console.warn("Socket state is unknown");
         break
     }
-  }, [readyState, processState]);
+  }, [readyState, processState, advanceProcessState]);
   
   const postForm = async () => {
     advanceProcessState();
@@ -113,7 +129,11 @@ const ResumeApp = ({ socketUrl = SOCKET_URL }: ResumeAppProps) => {
         </div>
 );
     case ProcessingState.FINISHED:
-      return <div data-testid="processed_text"><MarkdownBlock text={processedText}/></div>
+      if (websocketError) {
+        return <div data-testid="error_card"><Card title="Websocket Error">{ processedText }</Card></div>
+      } else {
+        return <div data-testid="processed_text"><MarkdownBlock text={processedText}/></div>
+      }
     default:
       return null;
   }
